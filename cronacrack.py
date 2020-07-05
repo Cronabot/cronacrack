@@ -1,4 +1,4 @@
-import argparse, hashlib, crack
+import argparse, hashlib
 from itertools import product
 
 #Characters to use when brute forcing
@@ -17,7 +17,12 @@ def crack(args):
 
     if args.fLength:
         if args.fLength <= 0: # Validate fixed length
-            print("Length of password cannot be less than 1")
+            print("Length of password must be more than 0")
+            return
+    
+    if args.charLim:
+        if args.charLim <= 0: # Validate character limit
+            print("Character limit must be more than 0")
             return
 
     #Check the specified hashing algorithm exists in hashlib
@@ -58,7 +63,12 @@ def crack(args):
             
     else: #Crack using brute force
         print("Password list not specified! Brute forcing...")
-        for length in range(6):
+
+        limit = 6
+        if args.charLim:
+            limit = args.charLim
+
+        for length in range(limit+1):
             if args.fLength:
                 length = args.fLength
             toAttempt = product(chars, repeat=length) #Generate list of possible character combinations at length "length"
@@ -89,6 +99,7 @@ def main():
     parser.add_argument("-method", help="The hashing algorithm you would like to use", dest="method", type=str, required=True)
     parser.add_argument("-passL", help="The password list you would like to use", dest="passwordList", type=str, required=False)
     parser.add_argument("-length", help="Only attempts passwords of a fixed length", dest="fLength", type=int, required=False)
+    parser.add_argument("-charLimit", help="Define a new limit of characters to bruteforce", dest="charLim", type=int, required=False)
     parser.add_argument("-print", help="Whether you want to print out each attempt", dest="shouldPrint", type=bool, required=False)
     parser.set_defaults(func=crack)
     args = parser.parse_args()
